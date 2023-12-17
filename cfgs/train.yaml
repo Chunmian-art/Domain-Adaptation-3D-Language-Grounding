@@ -1,0 +1,72 @@
+hydra:
+  run:
+    dir: ${root_dir}/${train.exps_folder}/${train.folder}
+  sweep:
+    dir: ${root_dir}/${train.exps_folder}/
+    subdir: ${train.folder}
+
+root_dir: ""
+
+tag: default
+seed: 114514
+debug: False
+
+wandb:
+  logger:
+    entity: snare
+    project: snare
+    tags: []
+    offline: False
+    run_name: ${train.run_name}
+  saver:
+    upload: False
+    monitor: 'val_acc'
+
+data:
+  fast_epoch: False
+  amt_data: '${root_dir}/amt/'
+  folds: 'folds_adversarial'
+
+  clip_lang_feats: '${root_dir}/data/langfeat-512-clipViT32.json.gz'
+  clip_img_feats: '${root_dir}/data/shapenet-clipViT32-frames.json.gz'
+
+train:
+  exps_folder: 'exps'
+  folder: ${train.feats_backbone}-${train.model}-${train.run_name}
+  run_name: ${train.aggregator.type}
+  pretrained_model: ''
+  model: ''
+  random_seed: 114514
+  log: False
+  log_path: ''
+  lr: 3.5e-4
+  weight_decay: 0.01
+  warmup_steps: 10000
+  batch_size: 25
+  max_epochs: 200
+  load_from_last_ckpt: True
+  dropout: 0.1
+  normalize_feats: True
+  pretrained_checkpoint: ""
+  fc_projection_type: "fc"
+  feats_backbone: "clip"
+  optim: "adamW"
+
+  aggregator:
+    type: 'maxpool'
+    index: 0 # zeroth-view for 'index' aggregation type
+
+  rotator:
+    teacher_force: True # during training
+    pretrained_cls: ''
+    estimate_init_state: True
+    estimate_final_state: True
+
+  loss:
+    est_weight: 1.0
+    rot_weight: 1.0
+    cls_weight: 0.2
+    aux_weight: 0.2
+
+val:
+  adversarial_init_view: False
